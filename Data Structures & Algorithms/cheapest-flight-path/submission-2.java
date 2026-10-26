@@ -1,0 +1,61 @@
+class Solution {
+    class Transition{
+        int cityNo; 
+        int cost; 
+        public Transition(int cityNo, int cost){
+            this.cityNo = cityNo; 
+            this.cost = cost; 
+        }
+    }
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+        HashMap<Integer, List<Transition>> graph = constructGraph(flights, n);
+        boolean[] visited = new boolean[n]; 
+        Integer[][] memo = new Integer[n][k + 1];
+        return dfs(graph, src, dst, k, visited, memo);
+    }
+    public int dfs(HashMap<Integer, List<Transition>> graph, int src, int dst, int k, boolean[] visited, Integer[][] memo){
+        if( src == dst)
+            return 0;
+        if(k < 0 && src != dst )
+            return -1;  
+
+        if(visited[src])
+            return -1;
+        if(memo[src][k] != null)
+            return memo[src][k];
+        
+        visited[src] = true; 
+        
+        List<Transition> neighbors = graph.get(src); 
+        int result = Integer.MAX_VALUE;
+        for(int i = 0; i < neighbors.size(); i++){
+            int result1 =  dfs(graph, neighbors.get(i).cityNo, dst, k -1, visited, memo); 
+            if(result1 == -1)
+                continue;
+            result = Math.min(result, neighbors.get(i).cost +result1); 
+             
+        }
+        memo[src][k] = result; 
+        visited[src] = false;
+        return result == Integer.MAX_VALUE ? -1 : result;
+    }
+
+
+    public HashMap<Integer, List<Transition>> constructGraph(int[][] flights, int n){
+        HashMap<Integer, List<Transition>> graph = new HashMap<>(); 
+        for(int i =0; i < n; i++){
+            graph.put(i, new ArrayList<>()); 
+        }
+        for(int i = 0; i < flights.length; i++){
+            int src = flights[i][0]; 
+            int dst = flights[i][1];  
+            int cost = flights[i][2];
+            List<Transition> neigh = graph.get(src); 
+            neigh.add(new Transition(dst, cost)); 
+        }
+        return graph; 
+    }
+    
+
+         
+}
